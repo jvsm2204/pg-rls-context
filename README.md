@@ -1,5 +1,6 @@
 # pg-rls-context
 
+[![npm version](https://img.shields.io/npm/v/pg-rls-context.svg)](https://www.npmjs.com/package/pg-rls-context)
 [![CI](https://github.com/jvsm2204/pg-rls-context/actions/workflows/ci.yml/badge.svg)](https://github.com/jvsm2204/pg-rls-context/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
@@ -21,7 +22,7 @@ The fix is to set the value transaction-local, with `set_config(name, value, tru
 ## Install
 
 ```bash
-npm install github:jvsm2204/pg-rls-context pg
+npm install pg-rls-context pg
 ```
 
 `pg` is a peer dependency, so you bring your own version.
