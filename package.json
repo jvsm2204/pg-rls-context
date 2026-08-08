@@ -11,6 +11,7 @@
     "multitenancy",
     "pg",
     "node-postgres",
+    "typescript",
     "tenant"
   ],
   "license": "MIT",
