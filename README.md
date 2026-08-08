@@ -21,7 +21,7 @@ The fix is to set the value transaction-local, with `set_config(name, value, tru
 ## Install
 
 ```bash
-npm install pg-rls-context pg
+npm install github:jvsm2204/pg-rls-context pg
 ```
 
 `pg` is a peer dependency, so you bring your own version.

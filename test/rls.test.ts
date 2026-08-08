@@ -126,6 +126,22 @@ describe("pg-rls-context", () => {
     expect(after.rows[0].n).toBe(2);
   });
 
+  it("treats a hostile tenant id as data, not SQL", async () => {
+    // if the tenant id were pasted into SQL instead of bound as a parameter,
+    // this string would break out and drop the table. it must not. a security
+    // helper with a SQL injection hole would be a bad joke.
+    const scope = createRlsScope(app, { tenantSetting: "app.current_tenant" });
+    const evil = "acme'; DROP TABLE notes; --";
+    const res = await scope.withContext({ "app.current_tenant": evil }, (c) =>
+      c.query("SELECT current_setting('app.current_tenant', true) AS t"),
+    );
+    // the value round-trips verbatim, so it went in as data, not code
+    expect(res.rows[0].t).toBe(evil);
+    // and the table is obviously still there
+    const still = await app.query("SELECT to_regclass('public.notes')::text AS t");
+    expect(still.rows[0].t).toBe("notes");
+  });
+
   it("isolates concurrent tenant scopes", async () => {
     const scope = createRlsScope(app, { tenantSetting: "app.current_tenant" });
     const [acme, globex] = await Promise.all([
