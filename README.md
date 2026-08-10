@@ -100,6 +100,8 @@ async function listLeads(session: { companyId: string }) {
 
 Every query inside the callback is scoped to that company by the database, not by application code someone has to remember to filter. And because the setting is transaction-local, the pooled connection carries nothing into the next request. The same shape works for any tenant key: an organization in a document platform, a workspace, an account.
 
+A runnable version of this, that seeds two companies and prints what each one sees, is in [examples/multi-tenant-crm.ts](./examples/multi-tenant-crm.ts).
+
 ## API
 
 - `createRlsScope(pool, options)` returns a scope bound to a `pg.Pool`.
