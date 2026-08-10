@@ -72,6 +72,34 @@ CREATE POLICY tenant_isolation ON notes
 
 `current_setting(name, true)` returns NULL when nothing is set, so a query outside any tenant scope sees no rows. That is fail-closed, which is what you want.
 
+## A worked example: a multi-tenant CRM
+
+This is the exact shape of the problem that led to this library. In a multi-tenant CRM every table carries a company id, and an RLS policy ties each row to the company in context:
+
+```sql
+CREATE POLICY company_isolation ON leads
+  USING (company_id = current_setting('app.current_company', true))
+  WITH CHECK (company_id = current_setting('app.current_company', true));
+```
+
+In the request handler you resolve the company from the authenticated session and run the whole unit of work inside its scope:
+
+```ts
+const rls = createRlsScope(pool, { tenantSetting: "app.current_company" });
+
+// list the leads that belong to the logged-in company
+async function listLeads(session: { companyId: string }) {
+  return rls.withTenant(session.companyId, async (db) => {
+    const { rows } = await db.query(
+      "SELECT id, name, stage FROM leads ORDER BY created_at DESC",
+    );
+    return rows;
+  });
+}
+```
+
+Every query inside the callback is scoped to that company by the database, not by application code someone has to remember to filter. And because the setting is transaction-local, the pooled connection carries nothing into the next request. The same shape works for any tenant key: an organization in a document platform, a workspace, an account.
+
 ## API
 
 - `createRlsScope(pool, options)` returns a scope bound to a `pg.Pool`.
